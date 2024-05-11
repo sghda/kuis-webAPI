@@ -1,8 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:kuis/model/item.dart'; // Import model user
+import 'package:kuis/model/item.dart'; // Import model item
 import 'package:kuis/provider/item_provider.dart';
 import 'package:kuis/services/item_services.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Kuis',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: HomePage(),
+    );
+  }
+}
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -12,181 +29,255 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 0; // Variabel untuk mengontrol indeks item yang dipilih
+
+  String _searchKeyword = ''; // Variabel untuk menyimpan kata kunci pencarian
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
       Provider.of<ItemProvider>(context, listen: false).getItems();
     });
-    // Provider.of<ItemProvider>(context, listen: false).getAllitems();
   }
-
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Provider API'),
+        title: Text('BarayaFood'), // Mengubah judul aplikasi
+        actions: [
+          IconButton(
+            icon: Icon(Icons.shopping_cart),
+            onPressed: () {
+              // Logika untuk menangani ketika ikon keranjang belanja diklik
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              // Logika untuk menangani ketika ikon pencarian diklik
+            },
+          ),
+        ],
       ),
-      body: Consumer<ItemProvider>(
-        builder: (context, ItemProvider, child) {
-          if (ItemProvider.isLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          
-          final items = ItemProvider.items;
-          return ListView.builder(
-            itemCount: ItemProvider.items.length,
-            itemBuilder: (context, index) {
-              final item = ItemProvider.items[index];
-              return ListTile(
-                leading: CircleAvatar(
-                  // backgroundColor: item.completed ? Color.fromARGB(255, 27, 126, 255) : Color.fromARGB(255, 0, 42, 255),
-                  child: Text(item.id.toString()),
-                ),
-                title: Text(
-                  item.title,
-                  style: TextStyle(
-                    color: Colors.black,
+      body: _buildBody(_selectedIndex),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed, // Menggunakan fixed untuk menampilkan semua item
+        currentIndex: _selectedIndex,
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: 'Search',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.info),
+            label: 'Status',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBody(int index) {
+    switch (index) {
+      case 0:
+        return _buildHomePageContent();
+      case 1:
+        return _buildSearchPage();
+      case 2:
+        return _buildStatusPage();
+      case 3:
+        return _buildProfilePage();
+      default:
+        return Container(); // Tambahkan widget default jika diperlukan
+    }
+  }
+
+  Widget _buildSearchPage() {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: SizedBox(
+            height: 40, // Mengurangi tinggi TextField
+            child: TextField(
+              onChanged: (value) {
+                setState(() {
+                  _searchKeyword = value.toLowerCase();
+                });
+              },
+              decoration: InputDecoration(
+                labelText: 'Mau makan apa...',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20.0), // Set border radius to 20
+                  borderSide: BorderSide(
+                    width: 2.0, // Set border thickness to 2
+                    color: Colors.blue, // Optionally, set border color
                   ),
                 ),
-                subtitle: Text('Rp'+item.price.toString()),
-              );
-            },
-          );
-        },
-      ),
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          child: Center(
+            child: Text('Search Page Content'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHomePageContent() {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: SizedBox(
+            height: 40, // Mengurangi tinggi TextField
+            child: TextField(
+              onChanged: (value) {
+                setState(() {
+                  _searchKeyword = value.toLowerCase();
+                });
+              },
+              decoration: InputDecoration(
+                labelText: 'Mau makan apa...',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20.0), // Set border radius to 20
+                  borderSide: BorderSide(
+                    width: 2.0, // Set border thickness to 2
+                    color: Colors.blue, // Optionally, set border color
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            FilterBox(
+              label: 'Terlaris',
+              onPressed: () {
+                // Logika untuk memfilter item terlaris
+              },
+              iconData: Icons.trending_up,
+            ),
+            FilterBox(
+              label: 'Terdekat',
+              onPressed: () {
+                // Logika untuk memfilter item terdekat
+              },
+              iconData: Icons.location_on,
+            ),
+            FilterBox(
+              label: 'Termurah',
+              onPressed: () {
+                // Logika untuk memfilter item termurah
+              },
+              iconData: Icons.attach_money,
+            ),
+            FilterBox(
+              label: 'Promo',
+              onPressed: () {
+                // Logika untuk memfilter item dengan harga promo
+              },
+              iconData: Icons.discount,
+            ),
+          ],
+        ),
+
+      ],
+    );
+  }
+
+  Widget _buildStatusPage() {
+    return Column(
+      children: [
+        ListTile(
+          title: Text('Order ID: 1'),
+          subtitle: Text('Status: Checkout'),
+        ),
+        ListTile(
+          title: Text('Order ID: 2'),
+          subtitle: Text('Status: Payment'),
+        ),
+        ListTile(
+          title: Text('Order ID: 3'),
+          subtitle: Text('Status: Accepted'),
+        ),
+        ListTile(
+          title: Text('Order ID: 4'),
+          subtitle: Text('Status: On Delivery'),
+        ),
+        ListTile(
+          title: Text('Order ID: 5'),
+          subtitle: Text('Status: Completed'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProfilePage() {
+    return Center(
+      child: Text('Profile Page Content'),
     );
   }
 }
 
-// class HomePage extends StatefulWidget {
-//   HomePage({Key? key}) : super(key: key);
+class FilterBox extends StatelessWidget {
+  final String label;
+  final VoidCallback onPressed;
+  final IconData iconData; // IconData untuk setiap teks
 
-//   @override
-//   State<HomePage> createState() => _HomePageState();
-// }
+  const FilterBox({
+    Key? key,
+    required this.label,
+    required this.onPressed,
+    required this.iconData,
+  }) : super(key: key);
 
-// class _HomePageState extends State<HomePage>{
-//   @override
-//   void initState() {
-//     super.initState();
-//     WidgetsBinding.instance!.addPostFrameCallback((_) {
-//       Provider.of<ItemProvider>(context, listen: false).getItems();
-//     });
-//     }
-
-//     Widget build(BuildContext context) {
-//   return Consumer<ItemProvider>(
-//     builder: (context, itemProvider, _) {
-//       // Get the list of items from the provider
-//       List<Item> items = itemProvider.items;
-
-//       return MaterialApp(
-//         home: Scaffold(
-//           appBar: AppBar(
-//             title: Text('Home'),
-//             actions: [
-//               IconButton(
-//                 icon: Icon(Icons.shopping_cart),
-//                 onPressed: () {
-//                   // Add logic when the Cart button is pressed
-//                 },
-//               ),
-//             ],
-//           ),
-//           body: SingleChildScrollView(
-//             child: GridView.count(
-//               shrinkWrap: true,
-//               crossAxisCount: 2,
-//               children: items.map((Item item) {
-//                 return _buildFoodItem(
-//                   item.title,
-//                   item.img_name,
-//                   item.price.toString(),
-//                   // item.description,
-//                 );
-//               }).toList(),
-//             ),
-//           ),
-//           bottomNavigationBar: BottomNavigationBar(
-//             items: [
-//               BottomNavigationBarItem(
-//                 icon: Icon(Icons.home),
-//                 label: 'Home',
-//               ),
-//               BottomNavigationBarItem(
-//                 icon: Icon(Icons.info),
-//                 label: 'Status',
-//               ),
-//               BottomNavigationBarItem(
-//                 icon: Icon(Icons.person),
-//                 label: 'Profile',
-//               ),
-//             ],
-//           ),
-//         ),
-//       );
-//     },
-//   );
-// }
-
-
-//   Widget _buildFoodItem(String title, String imagePath, String price) {
-//     return Card(
-//       child: InkWell(
-//         onTap: () {
-//           // Tambahkan logika ketika item makanan ditekan untuk melihat detail
-//         },
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.stretch,
-//           children: [
-//             // Icon(icon, size: 40.0, color: Colors.blue),
-//             SizedBox(height: 8.0),
-//             Image.asset(
-//               imagePath,
-//               width: 100.0,
-//               height: 100.0,
-//               fit: BoxFit.cover,
-//             ),
-//             SizedBox(height: 8.0),
-//             Text(
-//               title,
-//               style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-//               textAlign: TextAlign.center,
-//             ),
-//             SizedBox(height: 4.0),
-//             Text(
-//               price,
-//               style: TextStyle(fontSize: 14.0, color: Colors.grey),
-//               textAlign: TextAlign.center,
-//             ),
-//             SizedBox(height: 8.0),
-//             Row(
-//               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//               children: [
-//                 ElevatedButton(
-//                   onPressed: () {
-//                     // Tambahkan logika ketika tombol detail ditekan
-//                   },
-//                   child: Text('Detail'),
-//                 ),
-//                 ElevatedButton.icon(
-//                   onPressed: () {
-//                     // Tambahkan logika ketika tombol tambah ke keranjang ditekan
-//                   },
-//                   icon: Icon(Icons.add_shopping_cart),
-//                   label: Text(''),
-
-//                   // child: 
-//                   // Text('Add to Cart'),
-//                 ),
-//               ],
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.all(8.0), // Memberikan jarak antar kotak
+      child: ElevatedButton(
+        onPressed: onPressed,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              iconData,
+              size: 35, // Ukuran ikon
+              color: Colors.black, // Warna ikon
+            ),
+            SizedBox(height: 5), // Memberikan jarak antara ikon dan teks
+            Text(label),
+          ],
+        ),
+        style: ElevatedButton.styleFrom(
+          padding: EdgeInsets.all(10), // Memberikan ruang di dalam kotak
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      ),
+    );
+  }
+}

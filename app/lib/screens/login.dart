@@ -98,6 +98,9 @@ class _LoginPageState extends State<LoginPage> {
                             //   MaterialPageRoute(builder: (context) => HomePage()),
                             // );
                           },
+                          //  onPressed: () {
+                          //   Navigator.pushNamed(context, '/register');
+                          // },
                           child: Text("LOGIN"),
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(

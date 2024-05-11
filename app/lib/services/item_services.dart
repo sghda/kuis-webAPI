@@ -9,7 +9,7 @@ class ItemService {
   ItemService(this.accessToken);
 
   Future<List<Item>> getItems() async {
-    final url = 'http://146.190.109.66:8000';
+    final url = 'http://146.190.109.66:8000/items?skip=0&limit=100';
     final response = await http.get(
       Uri.parse(url),
       headers: {

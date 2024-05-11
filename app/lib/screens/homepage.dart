@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:kuis/screens/cartpage.dart';
 import 'package:provider/provider.dart';
 import 'package:kuis/model/item.dart'; // Import model item
 import 'package:kuis/provider/item_provider.dart';
@@ -32,6 +34,21 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0; // Variabel untuk mengontrol indeks item yang dipilih
 
   String _searchKeyword = ''; // Variabel untuk menyimpan kata kunci pencarian
+  int _quantity = 0; // Variabel untuk menyimpan jumlah item yang dipilih
+
+  void _incrementQuantity() {
+    setState(() {
+      _quantity++;
+    });
+  }
+
+  void _decrementQuantity() {
+    setState(() {
+      if (_quantity > 0) {
+        _quantity--;
+      }
+    });
+  }
 
   @override
   void initState() {
@@ -49,6 +66,8 @@ class _HomePageState extends State<HomePage> {
           IconButton(
             icon: Icon(Icons.shopping_cart),
             onPressed: () {
+              Get.to(CartPageScreen(cartItems: []));
+              
               // Logika untuk menangani ketika ikon keranjang belanja diklik
             },
           ),
@@ -202,11 +221,88 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
+        Expanded(
+          child: Consumer<ItemProvider>(
+            builder: (context, itemProvider, _) {
+              if (itemProvider.items.isEmpty) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+
+              final filteredItems = itemProvider.items
+                  .where((item) =>
+                      item.title.toLowerCase().contains(_searchKeyword))
+                  .toList();
+
+              return ListView.builder(
+                itemCount: filteredItems.length,
+                itemBuilder: (context, index) {
+                  final item = filteredItems[index];
+                  return ListTile(
+  leading: Image.asset('../img/${item.img_name}', width: 100, height: 100),
+  title: Text(item.title),
+  subtitle: Text('Rp ${item.price}'),
+  trailing: Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      IconButton(
+        icon: Icon(Icons.add),
+        onPressed: () {
+          _incrementQuantity();
+        },
+      ),
+      IconButton(
+        icon: Icon(Icons.info),
+        onPressed: () {
+          // Tambahkan navigasi atau tampilkan dialog untuk melihat detail item
+          _showItemDetail(item);
+        },
+      ),
+    ],
+  ),
+);
+
+
+                },
+              );
+            },
+          ),
+        ),
 
       ],
     );
   }
 
+void _showItemDetail(Item item) {
+  // Tampilkan dialog atau navigasi ke halaman detail item
+  // Contoh menggunakan dialog:
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(item.title),
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset('../img/${item.img_name}', width: 200, height: 200),
+          SizedBox(height: 10),
+          Text('Description: ${item.description}'),
+          Text('Price: Rp ${item.price}'),
+          // Tambahkan informasi lainnya yang perlu ditampilkan
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: Text('Close'),
+        ),
+      ],
+    ),
+  );
+}
   Widget _buildStatusPage() {
     return Column(
       children: [

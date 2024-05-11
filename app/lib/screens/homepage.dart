@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:kuis/model/cart.dart';
 import 'package:kuis/screens/cartpage.dart';
 import 'package:provider/provider.dart';
 import 'package:kuis/model/item.dart'; // Import model item
@@ -14,6 +15,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Kuis',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -33,22 +35,27 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0; // Variabel untuk mengontrol indeks item yang dipilih
 
+  List<Cart> cartItems = [];
+
   String _searchKeyword = ''; // Variabel untuk menyimpan kata kunci pencarian
   int _quantity = 0; // Variabel untuk menyimpan jumlah item yang dipilih
 
-  void _incrementQuantity() {
-    setState(() {
-      _quantity++;
-    });
-  }
+  void _incrementQuantity(Item item) {
+  setState(() {
+    var existingItem = cartItems.firstWhere(
+      (cartItem) => cartItem.itemId== item.id,
+      // orElse: () => Cart(itemId: item.id, quantity: 0),
+    );
 
-  void _decrementQuantity() {
-    setState(() {
-      if (_quantity > 0) {
-        _quantity--;
+    if (existingItem.quantity < 10) {
+      existingItem.quantity++;
+      if (!cartItems.contains(existingItem)) {
+        cartItems.add(existingItem);
       }
-    });
-  }
+    }
+  });
+}
+
 
   @override
   void initState() {
@@ -64,19 +71,42 @@ class _HomePageState extends State<HomePage> {
         title: Text('BarayaFood'), // Mengubah judul aplikasi
         actions: [
           IconButton(
-            icon: Icon(Icons.shopping_cart),
+            icon: Icon(Icons.shopping_cart),  
             onPressed: () {
-              Get.to(CartPageScreen(cartItems: []));
+              Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => CartPageScreen(cartItems: cartItems)),
+                            );
+              // Get.to(CartPageScreen(cartItems: cartItems));
+              // Get.to(CartPageScreen(cartItems: []));
               
               // Logika untuk menangani ketika ikon keranjang belanja diklik
             },
           ),
+          
           IconButton(
-            icon: Icon(Icons.search),
+            icon: Icon(Icons.person),
             onPressed: () {
+              showDialog(context: context, 
+              builder: 
+              (BuildContext context) => AlertDialog(
+                title: Text('Kelompok 30'),
+                content: Text('Salma Ghaida (2207186)\nNurainun (2202046)\nIlmu Komputer C1'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('Close'),
+                  ),
+                ],
+              ),
+              );
+              
               // Logika untuk menangani ketika ikon pencarian diklik
             },
           ),
+
         ],
       ),
       body: _buildBody(_selectedIndex),
@@ -92,10 +122,6 @@ class _HomePageState extends State<HomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.info),
@@ -115,51 +141,15 @@ class _HomePageState extends State<HomePage> {
       case 0:
         return _buildHomePageContent();
       case 1:
-        return _buildSearchPage();
-      case 2:
         return _buildStatusPage();
-      case 3:
+      case 2:
         return _buildProfilePage();
       default:
         return Container(); // Tambahkan widget default jika diperlukan
     }
   }
 
-  Widget _buildSearchPage() {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: SizedBox(
-            height: 40, // Mengurangi tinggi TextField
-            child: TextField(
-              onChanged: (value) {
-                setState(() {
-                  _searchKeyword = value.toLowerCase();
-                });
-              },
-              decoration: InputDecoration(
-                labelText: 'Mau makan apa...',
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20.0), // Set border radius to 20
-                  borderSide: BorderSide(
-                    width: 2.0, // Set border thickness to 2
-                    color: Colors.blue, // Optionally, set border color
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-        Expanded(
-          child: Center(
-            child: Text('Search Page Content'),
-          ),
-        ),
-      ],
-    );
-  }
+
 
   Widget _buildHomePageContent() {
     return Column(
@@ -249,7 +239,8 @@ class _HomePageState extends State<HomePage> {
       IconButton(
         icon: Icon(Icons.add),
         onPressed: () {
-          _incrementQuantity();
+          // Tambahkan logika untuk menambahkan item ke keranjang belanja
+          _incrementQuantity(item);
         },
       ),
       IconButton(
@@ -287,8 +278,8 @@ void _showItemDetail(Item item) {
         children: [
           Image.asset('../img/${item.img_name}', width: 200, height: 200),
           SizedBox(height: 10),
-          Text('Description: ${item.description}'),
-          Text('Price: Rp ${item.price}'),
+          Text('Deskripsi: ${item.description}'),
+          Text('Harga: Rp ${item.price}'),
           // Tambahkan informasi lainnya yang perlu ditampilkan
         ],
       ),

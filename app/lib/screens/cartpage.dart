@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-
+import 'package:kuis/model/cart.dart';
 
 class CartPageScreen extends StatelessWidget {
-  final List<String> cartItems;
+  final List<Cart> cartItems;
 
   const CartPageScreen({required this.cartItems});
-  // const CartPageScreen({required this.cartItems});
 
   @override
   Widget build(BuildContext context) {
@@ -16,8 +15,10 @@ class CartPageScreen extends StatelessWidget {
       body: ListView.builder(
         itemCount: cartItems.length,
         itemBuilder: (context, index) {
+          final cartItem = cartItems[index];
           return ListTile(
-            title: Text(cartItems[index]),
+            title: Text(cartItem.itemId.toString()),
+            subtitle: Text(cartItem.quantity.toString()),
           );
         },
       ),

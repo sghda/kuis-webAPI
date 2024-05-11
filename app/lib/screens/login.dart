@@ -91,12 +91,12 @@ class _LoginPageState extends State<LoginPage> {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                            Provider.of<User>(context, listen: false).LogIn(usernameController.text.toString(), passwordController.text.toString());
-                            Get.to(()=>HomePage());
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(builder: (context) => HomePage()),
-                            // );
+                            // Provider.of<User>(context, listen: false).LogIn(usernameController.text.toString(), passwordController.text.toString());
+                            // Get.to(()=>HomePage());
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => HomePage()),
+                            );
                           },
                           //  onPressed: () {
                           //   Navigator.pushNamed(context, '/register');
@@ -104,7 +104,7 @@ class _LoginPageState extends State<LoginPage> {
                           child: Text("LOGIN"),
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(6), // Set button border radius
+                               borderRadius: BorderRadius.circular(6), // Set button border radius
                             ),
                           ),
                         ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kuis/screens/login.dart';
 import 'package:provider/provider.dart';
 import 'package:kuis/model/item.dart';
 import 'package:kuis/model/cart.dart';
@@ -25,7 +26,12 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: HomePage(),
+        home: LoginPage(),
+        // initialRoute: '/',
+        // routes: {
+        //   '/': (context) => LoginPage(),
+        //   '/homepage': (context) => HomePage(),
+        // },
       ),
     );
   }
